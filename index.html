@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CronCompose - Cron Job Creator</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>CronCompose</h1>
+        <p>Create and validate cron job schedules with ease.</p>
+        <form id="cronForm">
+            <div class="form-group">
+                <label for="minute">Minute (0-59):</label>
+                <input type="text" id="minute" placeholder="*" maxlength="2">
+            </div>
+            <div class="form-group">
+                <label for="hour">Hour (0-23):</label>
+                <input type="text" id="hour" placeholder="*" maxlength="2">
+            </div>
+            <div class="form-group">
+                <label for="dayOfMonth">Day of Month (1-31):</label>
+                <input type="text" id="dayOfMonth" placeholder="*" maxlength="2">
+            </div>
+            <div class="form-group">
+                <label for="month">Month (1-12):</label>
+                <input type="text" id="month" placeholder="*" maxlength="2">
+            </div>
+            <div class="form-group">
+                <label for="dayOfWeek">Day of Week (0-7, 0 and 7 are Sunday):</label>
+                <input type="text" id="dayOfWeek" placeholder="*" maxlength="1">
+            </div>
+            <div class="form-group">
+                <label for="command">Command:</label>
+                <input type="text" id="command" placeholder="Enter the command" required>
+            </div>
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" id="redirectOutput"> Redirect output to /dev/null
+                </label>
+            </div>
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" id="suppressErrors"> Suppress errors (redirect to /dev/null)
+                </label>
+            </div>
+        </form>
+        <div id="output">
+            <h2>Your Cron Entry:</h2>
+            <pre id="cronOutput"></pre>
+        </div>
+    </div>
+    <script src="assets/js/script.js"></script>
+</body>
+</html>

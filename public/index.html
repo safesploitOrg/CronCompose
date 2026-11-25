@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en-GB" data-theme="system" data-density="comfortable">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Build, understand and validate Linux cron schedules locally in your browser.">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta name="referrer" content="no-referrer">
+  <title>CronCompose — Cron schedule builder</title>
+  <link rel="icon" href="assets/images/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <script type="module" src="assets/js/app.js"></script>
+</head>
+<body>
+<div class="site-shell">
+<header class="site-header">
+  <div class="brand"><svg class="brand-icon" width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="16" cy="16" r="13"/><path d="M16 8v8l5 3M16 3v3M29 16h-3M16 29v-3M3 16h3" stroke-linecap="round"/></svg><div><h1>CronCompose</h1><p class="subtitle">Build, understand and validate cron schedules.</p></div></div>
+  <div class="preferences"><select id="theme" aria-label="Appearance"><option value="system">System theme</option><option value="light">Light theme</option><option value="dark">Dark theme</option></select><select id="density" aria-label="Layout density"><option value="comfortable">Comfortable</option><option value="compact">Compact</option></select></div>
+</header>
+<noscript><p class="noscript">CronCompose requires JavaScript for scheduling and output generation. The reference information remains available.</p></noscript>
+<div class="workspace">
+<main class="panel">
+<section class="section" aria-labelledby="schedule-heading">
+  <div class="heading"><h2 id="schedule-heading">Schedule</h2><span id="syntax-status" class="status" role="status">Checking…</span></div>
+  <label for="expression" id="expression-label">Cron expression</label>
+  <input id="expression" class="expression" value="0 9 * * 1-5" maxlength="404" autocomplete="off" spellcheck="false" aria-describedby="schedule-detail">
+  <div class="fields">
+    <div><label for="f0">Minute</label><input id="f0" value="0" maxlength="80" autocomplete="off" spellcheck="false"><span class="range">0–59</span></div>
+    <div><label for="f1">Hour</label><input id="f1" value="9" maxlength="80" autocomplete="off" spellcheck="false"><span class="range">0–23</span></div>
+    <div><label for="f2">Day</label><input id="f2" value="*" maxlength="80" autocomplete="off" spellcheck="false" aria-label="Day of month"><span class="range">1–31</span></div>
+    <div><label for="f3">Month</label><input id="f3" value="*" maxlength="80" autocomplete="off" spellcheck="false"><span class="range">1–12</span></div>
+    <div id="weekday-field"><label for="f4">Weekday</label><input id="f4" value="1-5" maxlength="80" autocomplete="off" spellcheck="false"><span class="range">0–7</span></div>
+  </div>
+  <div class="schedule-feedback">
+    <div class="weekday" id="weekday-panel">
+      <div class="weekday-title"><span class="muted">Select weekdays</span><strong id="days-label" aria-live="polite">Mon–Fri</strong></div>
+      <div class="days" role="group" aria-label="Select weekdays">
+        <button type="button" class="day on" data-day="1" aria-pressed="true" aria-label="Monday">Mon</button><button type="button" class="day on" data-day="2" aria-pressed="true" aria-label="Tuesday">Tue</button><button type="button" class="day on" data-day="3" aria-pressed="true" aria-label="Wednesday">Wed</button><button type="button" class="day on" data-day="4" aria-pressed="true" aria-label="Thursday">Thu</button><button type="button" class="day on" data-day="5" aria-pressed="true" aria-label="Friday">Fri</button><button type="button" class="day" data-day="6" aria-pressed="false" aria-label="Saturday">Sat</button><button type="button" class="day" data-day="0" aria-pressed="false" aria-label="Sunday">Sun</button>
+      </div>
+      <p class="muted day-hint" id="day-hint" role="status">Click a day to include or exclude it.</p>
+    </div>
+    <div id="extended-lock" class="lock-note" hidden><strong>Extended schedule active.</strong> <span>Calendar fields are controlled by the selected monthly occurrence. Edit the time above, or change the occurrence below.</span></div>
+    <div class="meaning" aria-live="polite"><strong id="meaning">At 09:00 — Mon–Fri.</strong><p id="schedule-detail" class="muted">Uses the target cron host’s timezone.</p></div>
+  </div>
+  <h3 class="preset-label">Common schedules</h3>
+  <div id="regular-presets" class="presets" role="group" aria-label="Regular schedule presets"><button type="button" data-expr="* * * * *">Every minute</button><button type="button" data-expr="*/5 * * * *">Every 5 min</button><button type="button" data-expr="0 * * * *">Hourly</button><button type="button" data-expr="0 0 * * *">Daily</button><button type="button" data-expr="0 9 * * 1-5" class="selected">Weekdays</button><button type="button" data-expr="0 0 * * 0,6">Weekends</button><button type="button" data-expr="0 0 1 * *">Monthly</button></div>
+  <details class="extended" id="extended">
+    <summary><span>Extended Scheduling</span><span id="ext-status" class="extended-status">Optional</span><svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+    <div class="extended-body">
+      <p class="muted">Monthly schedules requiring a shell condition on GNU/Linux. Valid minute and hour fields are preserved.</p>
+      <div class="advanced-controls"><div><label for="occurrence">Monthly occurrence</label><select id="occurrence"><option value="none">No condition</option><option value="first">First</option><option value="second">Second</option><option value="third">Third</option><option value="fourth">Fourth</option><option value="last">Last</option><option value="lastDay">Last day of month</option></select></div><div id="extended-day-field"><label for="extended-day">Day of week</label><select id="extended-day"><option value="1">Monday</option><option value="2" selected>Tuesday</option><option value="3">Wednesday</option><option value="4">Thursday</option><option value="5">Friday</option><option value="6">Saturday</option><option value="0">Sunday</option></select></div></div>
+      <h3>Common extended schedules</h3><div id="extended-presets" class="presets" role="group" aria-label="Extended schedule presets"></div>
+      <div id="guard-info" class="notice" hidden><strong>Shell condition enabled · GNU/Linux</strong><p id="guard-desc"></p><button type="button" id="guard-remove" class="text-button">Remove condition</button></div>
+    </div>
+  </details>
+</section>
+<section class="section" aria-labelledby="config-heading">
+  <h2 id="config-heading">Configure crontab</h2>
+  <div class="mode" role="group" aria-label="Crontab type"><button type="button" id="user-mode" class="selected" aria-pressed="true">User crontab</button><button type="button" id="system-mode" aria-pressed="false">System crontab</button></div>
+  <div class="field" id="user-field" hidden><label for="username">Run as user</label><input id="username" value="backup" maxlength="64" spellcheck="false" autocomplete="off"></div>
+  <div class="field"><label for="command">Command</label><input id="command" class="command" value="/usr/local/bin/task.sh" maxlength="2048" spellcheck="false" autocomplete="off"></div>
+  <div class="options"><label><input type="checkbox" id="stdout">Discard stdout</label><label><input type="checkbox" id="stderr">Discard stderr</label></div>
+  <div class="notice" id="output-warnings" role="status"></div>
+  <div class="install"><div class="muted" id="install-label">Install in your own user’s crontab:</div><code id="install-command">crontab -e</code></div>
+</section>
+<section class="section" aria-labelledby="output-heading">
+  <div class="heading"><h2 id="output-heading">Generated crontab</h2><button type="button" id="copy-expression" class="text-button" disabled>Copy expression</button></div>
+  <div class="heading comment-control"><label for="comments">Include comments</label><select id="comments"><option value="none">None</option><option value="simple">Simple reference</option><option value="detailed">Detailed reference</option></select></div>
+  <textarea id="output" class="output" rows="3" readonly wrap="off" aria-label="Generated crontab entry" placeholder="Complete a supported schedule and command."></textarea>
+  <div class="actions"><span id="copy-state" class="muted" role="status">Preview only · commands never run here</span><button type="button" id="copy" class="primary" disabled><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>Copy crontab</button></div>
+</section>
+</main>
+<aside class="panel" aria-label="Cron reference">
+<section class="section"><h2>Cron reference</h2><p class="muted">Traditional five-field Linux cron.</p><table><thead><tr><th scope="col">Field</th><th scope="col">Allowed values</th></tr></thead><tbody><tr><td>Minute</td><td><code>0–59</code></td></tr><tr><td>Hour</td><td><code>0–23</code></td></tr><tr><td>Day of month</td><td><code>1–31</code></td></tr><tr><td>Month</td><td><code>1–12</code></td></tr><tr><td>Day of week</td><td><code>0–7</code></td></tr></tbody></table><p class="muted">Sunday = 0 or 7.</p><h3 class="syntax-heading">Syntax</h3><div class="syntax"><code>*</code><span>Wildcard — any value</span></div><div class="syntax"><code>,</code><span>List — 1,15,30</span></div><div class="syntax"><code>-</code><span>Range — 1-5</span></div><div class="syntax"><code>/</code><span>Step — */15</span></div></section>
+<section class="section"><h3>Special strings</h3><p class="muted">Select a string to apply it.</p><table><tbody><tr><td><button type="button" class="alias" data-expr="@reboot">@reboot</button></td><td>Daemon startup</td></tr><tr><td><button type="button" class="alias" data-expr="@yearly">@yearly</button></td><td>Yearly<br><code>0 0 1 1 *</code></td></tr><tr><td><button type="button" class="alias" data-expr="@monthly">@monthly</button></td><td>Monthly<br><code>0 0 1 * *</code></td></tr><tr><td><button type="button" class="alias" data-expr="@weekly">@weekly</button></td><td>Weekly<br><code>0 0 * * 0</code></td></tr><tr><td><button type="button" class="alias" data-expr="@daily">@daily</button></td><td>Daily<br><code>0 0 * * *</code></td></tr><tr><td><button type="button" class="alias" data-expr="@hourly">@hourly</button></td><td>Hourly<br><code>0 * * * *</code></td></tr></tbody></table></section>
+<section class="section"><h3>Good to know</h3><details id="help-user"><summary>User vs system crontab</summary><p>User crontabs edited with <code>crontab -e</code> do not include a username. System files such as <code>/etc/crontab</code> and <code>/etc/cron.d/*</code> require one. An administrator can edit another user’s crontab using <code>crontab -u username -e</code>.</p></details><details id="help-day"><summary>Day-of-month and weekday</summary><p>Under Cronie, if both day fields are restricted (not wildcard-led), either day field can trigger the job. The weekday selector previews that field only, not all possible execution dates.</p></details><details id="help-advanced"><summary>Extended scheduling</summary><p>The daemon triggers on the selected weekdays or each day for month end; the generated shell condition limits actual command execution. Requires GNU date in the trusted PATH and /bin/sh. Ensure the schedule and date command use the same timezone. Percent signs inside extended commands are not supported; place such commands in a separate script.</p></details><details id="help-tz"><summary>Timezone &amp; DST</summary><p>Check the cron host’s timezone, daemon implementation and daylight saving behaviour. This tool does not calculate forthcoming execution times.</p></details><details id="help-env"><summary>Command environment</summary><p>Use absolute command paths. Check permissions, PATH, environment variables and cron’s percent-sign processing. Review the generated entry before installing it. A syntactically valid entry does not guarantee the command will work.</p></details><p class="muted"><a href="https://man7.org/linux/man-pages/man5/crontab.5%40%40cronie.html" target="_blank" rel="noopener noreferrer">Cronie crontab(5) reference ↗</a></p></section>
+</aside>
+</div>
+<footer><span>© <span id="current-year">2026</span> safesploitOrg</span><a href="https://github.com/safesploitOrg/CronCompose" target="_blank" rel="noopener noreferrer" aria-label="CronCompose GitHub repository" title="CronCompose GitHub repository"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .8a11.2 11.2 0 0 0-3.54 21.83c.56.1.77-.24.77-.54v-2.1c-3.13.68-3.79-1.33-3.79-1.33-.51-1.3-1.25-1.64-1.25-1.64-1.02-.7.08-.69.08-.69 1.13.08 1.73 1.16 1.73 1.16 1.02 1.72 2.64 1.22 3.28.93.1-.72.39-1.22.71-1.5-2.5-.29-5.12-1.25-5.12-5.55 0-1.23.44-2.24 1.16-3.03-.12-.28-.5-1.42.11-2.96 0 0 .95-.3 3.08 1.16A10.7 10.7 0 0 1 12 6.16c.95 0 1.9.13 2.8.38 2.13-1.46 3.07-1.16 3.07-1.16.61 1.54.23 2.68.11 2.96.72.8 1.13 1.82 1.13 3.03 0 4.31-2.63 5.26-5.13 5.54.4.35.76 1.03.76 2.08v3.1c0 .3.2.65.77.54A11.2 11.2 0 0 0 12 .8Z"/></svg></a></footer>
+</div>
+</body>
+</html>

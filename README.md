@@ -16,7 +16,7 @@ CronCompose is a browser-only Linux cron schedule builder, validator and crontab
 
 ## Local development
 
-Requires Node.js 22+, Python 3 for the local HTTP server, and GNU Coreutils `date` for shell integration tests. On macOS install GNU Coreutils with `brew install coreutils` (`gdate --version` to verify). Linux normally provides GNU `date` already. There are no npm dependencies. The test harness detects `date` or `gdate` on PATH, or accepts an explicit absolute `GNU_DATE` override. Missing or invalid GNU date fails the tests; it does not skip them. Generated extended schedules still target GNU/Linux.
+Requires Node.js 22+, Python 3 for the local HTTP server, and GNU Coreutils `date` for shell integration tests. On macOS install GNU Coreutils with `brew install coreutils` (`gdate --version` to verify). On Ubuntu 25.10 and later, the default `date` can be Rust uutils; the GNU version is `gnudate` (provided by `gnu-coreutils`). Check `gnudate --version`. Other GNU/Linux distributions commonly provide GNU `date` directly. There are no npm dependencies. The test harness detects `date`, `gdate` or `gnudate` on PATH, or accepts an explicit absolute `GNU_DATE` override. Missing or invalid GNU date fails the tests; it does not skip them. Generated extended schedules still target GNU/Linux.
 
 ```bash
 npm ci --ignore-scripts --no-audit --no-fund
@@ -34,7 +34,7 @@ Run `npm run test:unit` or `npm run test:extended` separately. See [testing](doc
 
 This is a bounded subset of traditional five-field Cronie syntax, not a universal cron parser. Named month/day abbreviations, lists, ranges and steps are supported; Quartz, seconds, year fields, randomisation and `L`, `W`, `#` extensions are not. Syntactic validity does not guarantee a calendar match, command success or safety.
 
-Extended conditions require `/bin/sh`, GNU `date` in a trusted PATH, and matching schedule/command timezones. Percent signs in extended user commands are rejected; place these commands in a separate script. The generated expression alone is only the trigger. Copy the complete crontab line.
+Extended conditions require `/bin/sh`, GNU `date` in a trusted PATH, and matching schedule/command timezones. Percent signs in extended user commands are rejected; place these commands in a separate script. On Ubuntu hosts using uutils, ensure the cron job resolves `date` to GNU Coreutils (for example, adapt the guard to explicitly invoke the verified absolute `gnudate` executable and test it before installation). The test resolver does not alter the generated command or the target host. The generated expression alone is only the trigger. Copy the complete crontab line.
 
 See [Cronie crontab(5)](https://man7.org/linux/man-pages/man5/crontab.5%40%40cronie.html).
 

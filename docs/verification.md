@@ -1,15 +1,14 @@
-# Verification report - 0.1.0-alpha.4
+# Verification report - 0.1.0-alpha.5
 
-**Outcome:** Local test-harness portability fix completed. Native macOS verification and hosted CI remain outstanding. No remote changes or deployment performed.
+**Outcome:** GNU date discovery compatibility fix implemented and locally verified. Native Ubuntu 26.04 and macOS, hosted CI for the revised candidate, browser verification and release approval remain outstanding. No remote changes or deployment performed.
 
 ## Scope and baseline
 
-- Profile B with applicable D deployment controls; T1 test infrastructure change. Existing T2 parser/deployment release-review requirements remain.
-- Alpha.3 baseline: 87/87 tests passed locally on Linux. Owner-supplied macOS output shows all 48 original unit tests passed; shell integration failed at setup because BSD date was selected.
-- Root cause: the suite probed `date --version` and subsequently hard-coded `/usr/bin/date`, both unsuitable for the default macOS BSD executable.
-- Changed files: `tests/helpers/gnu-date.js` (new), `tests/unit/gnu-date.test.js` (new), `tests/integration/extended.test.js`, `package.json`, `package-lock.json`, `AGENTS.md`, `ARCHITECTURE.md`, `README.md`, `CHANGELOG.md`, `docs/testing.md`, `docs/verification.md`.
-- The resolver verifies GNU Coreutils, searches absolute PATH directories for `date` and `gdate`, and accepts a validated absolute `GNU_DATE` override. The fixture and live-date case use the same executable. Failure to locate GNU date remains blocking.
-- `public/` and `.github/` are byte-identical to alpha.3. No runtime behaviour, dependencies, CI jobs or deployment permissions changed.
+- SFW Profile B with applicable D deployment controls; T1 test infrastructure change. Existing T2 parser/deployment release review remains required.
+- Investigated PR #1 (`staging`, head `785d54c7cc08422cf36ae6d442178d6dfc2fd8e7`), run [45639316871](https://github.com/safesploitOrg/CronCompose/actions/runs/45639316871), job `139293227253`. The runner reports `ubuntu-26.04`; source validation, 54 unit tests, Gitleaks and CodeQL passed. Integration failed before executing cases; audit/package/deployment skipped.
+- Root cause: the resolver searched `date` and `gdate`, not Ubuntu's `gnudate`. Ubuntu 25.10+ defaults to Rust uutils for most commands and retains GNU-prefixed binaries ([Ubuntu release notes](https://documentation.ubuntu.com/release-notes/26.04/summary-for-lts-users/)). The hosted log did not print the executable versions; the precise selection is inferred from the image and source. The missing-name failure was independently reproduced using a simulated Ubuntu-style PATH.
+- Changed files: `tests/helpers/gnu-date.js`, `tests/unit/gnu-date.test.js`, `package.json`, `package-lock.json`, `AGENTS.md`, `ARCHITECTURE.md`, `README.md`, `CHANGELOG.md`, `docs/testing.md`, `docs/verification.md`.
+- Production `public/`, integration test file and `.github/` are unchanged. GNU identity verification and failure-on-missing semantics remain. The generated shell commands still require GNU `date` on the target host; CI discovery does not change their runtime requirements.
 
 ---
 
@@ -17,22 +16,24 @@
 
 | Check | Result | Evidence |
 | --- | --- | --- |
-| Baseline | PASS | `npm run check`: 87/87 before changes |
-| npm install | PASS | `npm ci --ignore-scripts --no-audit --no-fund` |
-| Focused source checks | PASS | `npm run lint` within `npm run check` |
-| Unit tests | PASS | 54/54 including six GNU date resolver regressions |
-| Shell integration | PASS | 39/39 within `npm run check` on Linux, Node 22.16.0, GNU Coreutils 9.7 |
-| Combined quality check | PASS | 93/93, zero skipped |
-| Simulated Homebrew PATH | PASS | All 39 shell integration tests with a BSD-style date stub ahead of system PATH and a real GNU date binary symlinked as `gdate` in a directory containing spaces; selected gdate logged |
-| Invalid override | PASS (expected failure) | `GNU_DATE` pointed to BSD-style date stub; integration suite exited nonzero with actionable error |
-| Dependency audit | PASS | `npm audit --audit-level=high --fetch-retries=0 --fetch-timeout=6000`: zero vulnerabilities |
-| Runtime and CI diff | PASS | SHA-256 equality for every file under `public/` and `.github/` |
-| Native macOS / Homebrew runtime | NOT RUN | Linux environment; simulated discovery is not native platform verification |
-| Chromium, accessibility, Firefox/WebKit | NOT RUN | No UI changes; inherited browser verification outstanding |
-| Gitleaks, CodeQL, hosted CI and Pages | NOT RUN | Existing workflow unchanged, no push/deploy |
+| Baseline normal GNU Linux | PASS | `npm run check`, 93/93 |
+| Baseline simulated Ubuntu | FAIL (expected reproduction) | Only Rust-style `date` stub and real GNU binary named `gnudate` in PATH; alpha.4 rejected discovery |
+| Reproducible npm install | PASS | `npm ci --ignore-scripts --no-audit --no-fund` |
+| Source validation | PASS | `npm run lint` via `npm run check` |
+| Unit tests | PASS | 57/57, including three additional Ubuntu resolver regressions |
+| Shell integration | PASS | 39/39 with actual `/bin/sh` and GNU Coreutils 9.7 on Linux, Node 22.16.0 |
+| Combined quality check | PASS | `npm run check`, 96/96, no skipped tests |
+| Simulated Ubuntu PATH | PASS | 39/39 with Rust-style `date` stub and actual GNU date symlinked as `gnudate`; fixture-only discovery PATH |
+| Simulated Homebrew PATH | PASS | 39/39 with BSD-style `date` stub and actual GNU date symlinked as `gdate`; fixture-only discovery PATH |
+| Rust-only and explicit Rust override | PASS (expected rejection) | New unit regressions preserve blocking failure |
+| Dependency audit | PASS | `npm audit --audit-level=high --fetch-retries=0 --fetch-timeout=6000`, zero vulnerabilities |
+| Public assets and workflow diff | PASS | `diff -qr` for both directories; unchanged |
+| Native Ubuntu 26.04/macOS | NOT RUN | Simulated discovery is not native runtime verification |
+| Browser/accessibility | NOT RUN | No UI changes; inherited verification outstanding |
+| Gitleaks/CodeQL on alpha.5 and remote CI | NOT RUN | Prior revision passed remote security gates; updated revision not pushed |
 
 ---
 
 ## Security and release status
 
-No skipped integration tests or softened gates. No new runtime dependencies or app-side code changes. The resolver executes a verified local executable from the developer-controlled PATH or explicit absolute override, never user input from the web application. Existing Playwright exception, full browser/accessibility checks, hosted security scans, cron daemon testing, empty licence and human owner release approval remain outstanding. No repository or deployment action was taken.
+No tests skipped or gates weakened; no dependencies or production code changes. No new vulnerability findings from the executed checks. The existing temporary Playwright exclusion, full browser/accessibility verification, cron daemon tests, empty licence, updated hosted security checks and owner release approval remain outstanding. On a target using uutils, ensure generated guards use GNU date before installation; do not assume uutils compatibility from this suite. No remote actions were taken. Revert the scoped patch if needed; no state migration is involved.

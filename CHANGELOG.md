@@ -1,6 +1,14 @@
 # 📝 Changelog
 
-## [0.1.0-alpha.4] — Unreleased
+## [0.1.0-alpha.5] — Unreleased
+
+- Detect Ubuntu 25.10+ GNU Coreutils `gnudate` alongside `date` and Homebrew `gdate`. The default Rust uutils executable is not accepted as GNU date.
+- Add three resolver regressions for Ubuntu-style discovery, Rust-only rejection and explicit `gnudate` override; retain all mandatory shell integration tests and the existing `ubuntu-latest` runner.
+- Document the distinction between the test resolver and the target cron host's GNU `date` requirement. No production web assets or CI workflow changes.
+
+---
+
+## [0.1.0-alpha.4] — Previous unpublished candidate
 
 - Resolve GNU `date` or Homebrew `gdate` automatically for shell integration tests on Linux/macOS, with an optional absolute `GNU_DATE` override.
 - Use the verified executable for both frozen and real-date integration cases; fail clearly if GNU Coreutils is unavailable.

@@ -45,6 +45,6 @@ Use Section 15 of the standard. Report the exact files changed; commands/checks 
 - Profile B with applicable D deployment controls; T2 parser and deployment changes require recorded owner review before release.
 - Static publish root: `public/`. No runtime dependencies. No backend; never execute user commands.
 - Commands: `npm run lint`, `npm run test:unit`, `npm run test:extended`, `npm run check`, `npm run serve`.
-- Shell integration tests require GNU Coreutils `date` or Homebrew `gdate` on PATH; optional absolute `GNU_DATE` override. Missing GNU date must fail, not skip, the suite.
+- Shell integration tests require GNU Coreutils `date`, Homebrew `gdate` or Ubuntu `gnudate` on PATH; optional absolute `GNU_DATE` override. Missing GNU date must fail, not skip, the suite.
 - Playwright local regression suite: `python3 tests/browser/smoke.py`; excluded from CI per `docs/exceptions.md`.
 - Preserve `public/CNAME`, dynamic-year footer-only repository link, fixed weekday grid and extended-mode controls.

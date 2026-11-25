@@ -16,6 +16,7 @@ function executable(directory, name, body) {
   return path;
 }
 const GNU = `printf '%s\\n' 'date (GNU coreutils) 9.7'`;
+const UUTILS = `printf '%s\\n' 'date (uutils coreutils) 0.8.0'`;
 const BSD = `printf '%s\\n' 'date: illegal option -- -' >&2; exit 1`;
 
 test('GNU date resolver accepts the Linux date executable', t => {
@@ -55,4 +56,23 @@ test('GNU date resolver fails closed on invalid explicit overrides', t => {
   for (const override of ['date', '', date, join(dir, 'missing')]) {
     assert.throws(() => findGnuDate({PATH: dir, GNU_DATE: override}), /GNU_DATE must point/);
   }
+});
+
+test('GNU date resolver rejects Rust uutils date and selects Ubuntu gnudate', t => {
+  const dir = fixture(t);
+  executable(dir, 'date', UUTILS);
+  const gnudate = executable(dir, 'gnudate', GNU);
+  assert.equal(findGnuDate({PATH: dir}), gnudate);
+});
+test('GNU date resolver fails closed when only Rust uutils date is present', t => {
+  const dir = fixture(t);
+  const date = executable(dir, 'date', UUTILS);
+  assert.throws(() => findGnuDate({PATH: dir}), /gnudate --version/);
+  assert.throws(() => findGnuDate({PATH: dir, GNU_DATE: date}), /GNU_DATE must point/);
+});
+test('GNU date resolver supports an explicit Ubuntu gnudate override', t => {
+  const dir = fixture(t);
+  executable(dir, 'date', UUTILS);
+  const gnudate = executable(dir, 'gnudate', GNU);
+  assert.equal(findGnuDate({PATH: '', GNU_DATE: gnudate}), gnudate);
 });

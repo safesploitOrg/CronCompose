@@ -1,6 +1,6 @@
 # 🧱 CronCompose Architecture
 
-**Status:** Implemented local release candidate `0.1.0-alpha.4`; not deployed.
+**Status:** Implemented local release candidate `0.1.0-alpha.5`; not deployed.
 
 ## Scope and classification
 

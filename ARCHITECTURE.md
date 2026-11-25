@@ -1,6 +1,6 @@
 # 🧱 CronCompose Architecture
 
-**Status:** Implemented local release candidate `0.1.0-alpha.2`; not deployed.
+**Status:** Implemented local release candidate `0.1.0-alpha.4`; not deployed.
 
 ## Scope and classification
 
@@ -38,7 +38,7 @@ flowchart TD
     J[Presentation preferences] --> K[Browser localStorage]
 ```
 
-The right-aligned weekday selector sits beneath the Weekday field. Its summary and seven buttons occupy independent grid rows; selection text cannot reflow the buttons. A container-width query places the schedule explanation to the left when the editor content is at least 580px wide. On narrower editors the selector and explanation stack, with the selector aligned right. When the weekday selector is hidden (extended or startup schedules), the explanation occupies the full available width. Extended mode hides the normal weekday field and buttons, locks date fields and the raw expression, and retains editable minute/hour. Removal restores the pre-extension schedule; regular presets explicitly clear the condition. Collapsing the section does not remove it.
+The right-aligned weekday selector sits beneath the Weekday field. Its summary and seven buttons occupy independent grid rows; selection text cannot reflow the buttons. A container-width query places the schedule explanation to the left when the editor content is at least 580px wide. On narrower editors the selector and explanation stack, with the selector aligned right. When the weekday selector is hidden (extended or startup schedules), the explanation occupies the full available width. Extended mode retains all five fields, hides only the interactive weekday selector, locks date fields (including weekday) and the raw expression, and retains editable minute/hour. Weekday summaries group adjacent days into ranges in Monday–Sunday order without changing the cron expression. Removal restores the pre-extension schedule; regular presets explicitly clear the condition. Collapsing the section does not remove it.
 
 ---
 

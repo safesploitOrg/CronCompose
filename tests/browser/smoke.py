@@ -58,6 +58,11 @@ def main():
                     page.locator('#expression').fill(expr)
                     assert positions()==baseline, f'Weekday geometry changed at {width}: {expr}'
                     assert_feedback_layout()
+                page.locator('#expression').fill('0 9 * * 1-3,5')
+                assert page.locator('#days-label').inner_text() == 'Mon–Wed, Fri'
+                assert page.locator('#meaning').inner_text() == 'At 09:00 — Mon–Wed, Fri.'
+                assert positions()==baseline
+                field_bounds = page.locator('#f4').bounding_box()
                 page.locator('#expression').fill('0 9 * * *')
                 page.get_by_role('button',name='Thursday',exact=True).click()
                 assert page.locator('#f4').input_value()=='0-3,5,6'
@@ -73,7 +78,11 @@ def main():
                 page.locator('#extended > summary').click()
                 page.get_by_role('button',name='Last Tuesday',exact=True).click()
                 assert page.locator('#weekday-panel').is_hidden()
-                assert page.locator('#weekday-field').is_hidden()
+                assert page.locator('#weekday-field').is_visible()
+                assert page.locator('#f4').is_disabled()
+                assert page.locator('#f4').input_value() == '2'
+                assert abs(page.locator('#f4').bounding_box()['width'] - field_bounds['width']) <= 1
+                assert page.locator('.fields > div').count() == 5
                 assert abs(page.locator('.meaning').bounding_box()['width'] - page.locator('.schedule-feedback').bounding_box()['width']) <= 1, 'Extended explanation must use full width'
                 assert page.locator('#expression').get_attribute('readonly') is not None
                 assert page.locator('#f2').is_disabled() and page.locator('#f3').is_disabled()
@@ -89,6 +98,8 @@ def main():
                 page.locator('#extended > summary').click()
                 page.locator('#guard-remove').click()
                 assert page.locator('#weekday-panel').is_visible()
+                assert page.locator('#f4').is_enabled()
+                assert page.locator('#f4').input_value() == '1-5'
                 assert_feedback_layout()
                 assert positions()==baseline
                 assert page.locator('#expression').input_value()=='0 9 * * 1-5'

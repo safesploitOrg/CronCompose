@@ -55,9 +55,7 @@ function render(sync){
   $('expression').readOnly=extended;
   $('expression-label').textContent=extended?'Cron trigger (generated)':'Cron expression';
   $('expression').setAttribute('aria-invalid',String(!valid));
-  $('weekday-field').hidden=extended;
   $('weekday-panel').hidden=extended||Boolean(model.reboot);
-  document.querySelector('.fields').classList.toggle('extended-fields',extended);
   $('extended-lock').hidden=!extended;
   const selected=hasParts&&model.values?.[4]||[];
   days.forEach(button=>{

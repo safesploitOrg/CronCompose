@@ -19,3 +19,32 @@ test('unsafe structural input blocks generation and native percent warns',()=>{c
 test('every extended preset yields a compatible trigger and guard',()=>{for(const {kind,day} of COMMON_EXTENDED){const condition={kind,day};const model=parseCron(extendedTrigger(parseCron('15 4 3 JAN 1-5'),condition));assert.ok(isCompatible(model,condition));assert.equal(model.parts[0],'15');assert.equal(model.parts[1],'4');assert.match(buildExtendedCommand('echo OK',condition),/date \+\\%F/);assert.ok(formatEntry({model,condition,command:'echo OK'}).text);}});
 test('conflicting extended input cannot be copied',()=>{const condition={kind:'last',day:2};for(const expression of ['0 9 * * 1-5','0 9 1 * 2','0 9 * JAN 2','@reboot','0 9 * * 1'])assert.equal(formatEntry({model:parseCron(expression),condition,command:'/bin/true'}).text,'');assert.throws(()=>buildExtendedCommand('echo OK',{kind:'bad',day:2}));});
 test('preferences reject unknown values and never retain commands',()=>{const prefs=normalisePreferences({theme:'dark',density:'compact',layout:'other',expandedSections:['extended','bad','extended'],command:'secret',username:'root'});assert.deepEqual(prefs,{theme:'dark',density:'compact',layout:'workspace',expandedSections:['extended']});const map=new Map();const storage={getItem:k=>map.get(k),setItem:(k,v)=>map.set(k,v)};assert.equal(writePreferences(storage,prefs),true);assert.deepEqual(readPreferences(storage),prefs);map.set(STORAGE_KEY,'{broken');assert.equal(readPreferences(storage).theme,'system');assert.equal(writePreferences(undefined,prefs),false);});
+
+
+test('weekday summary groups adjacent days in Monday-first order',()=>{
+  const examples=[[[1,2,3,5],'Mon–Wed, Fri'],[[1,2,4,5],'Mon–Tue, Thu–Fri'],[[1,3,5],'Mon, Wed, Fri'],[[0,1],'Mon, Sun'],[[0,6],'Sat–Sun'],[[0,1,2,3,5,6],'Mon–Wed, Fri–Sun'],[[2],'Tue'],[[0,1,2,3,4,5,6],'Every day'],[[],'No valid weekday']];
+  for(const [days,expected] of examples)assert.equal(dayText(days),expected);
+});
+test('all 127 weekday summaries represent exactly the selected days',()=>{
+  const labels=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const numbers=[1,2,3,4,5,6,0];
+  for(let mask=1;mask<128;mask++){
+    const selected=Array.from({length:7},(_,i)=>i).filter(i=>mask&(1<<i));
+    const text=dayText(selected);
+    const expanded=text==='Every day'?[...numbers]:text.split(', ').flatMap(group=>{
+      const parts=group.split('–');
+      assert.ok(parts.length<=2&&parts.every(part=>labels.includes(part)));
+      const start=labels.indexOf(parts[0]),end=labels.indexOf(parts.at(-1));
+      assert.ok(start<=end);
+      return numbers.slice(start,end+1);
+    });
+    assert.deepEqual(expanded.sort((a,b)=>a-b),selected,text);
+  }
+});
+test('schedule explanation and field summary use the same weekday ranges',()=>{
+  const model=parseCron('0 9 * * MON-WED,FRI');
+  assert.equal(dayText(model.values[4]),'Mon–Wed, Fri');
+  assert.equal(describeCron(model),'At 09:00 — Mon–Wed, Fri.');
+  assert.match(describeCron(parseCron('0 9 1 * 1-3,5')),/OR weekday Mon–Wed, Fri/);
+  assert.equal(formatEntry({model,command:'/bin/true'}).text,'0 9 * * MON-WED,FRI /bin/true\n');
+});

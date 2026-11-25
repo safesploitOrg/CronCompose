@@ -62,10 +62,18 @@ export function compressDays(days, preserveRestricted = false) {
 }
 export function dayText(days) {
   if (!days?.length) return 'No valid weekday';
-  if (days.length===7) return 'Every day';
-  if (days.join(',')==='1,2,3,4,5') return 'Mon–Fri';
-  if (days.join(',')==='0,6') return 'Sat–Sun';
-  return ORDER.filter(d=>days.includes(d)).map(d=>DAYS[d]).join(', ');
+  // Group adjacent selected days in the Monday–Sunday display order.
+  const selected = ORDER.map(day => days.includes(day));
+  if (selected.every(Boolean)) return 'Every day';
+  const result = [];
+  for (let i = 0; i < ORDER.length;) {
+    if (!selected[i]) { i++; continue; }
+    let end = i;
+    while (end + 1 < ORDER.length && selected[end + 1]) end++;
+    result.push(end === i ? DAYS[ORDER[i]] : `${DAYS[ORDER[i]]}–${DAYS[ORDER[end]]}`);
+    i = end + 1;
+  }
+  return result.length ? result.join(', ') : 'No valid weekday';
 }
 export function dayRule(model) {
   // Cronie distinguishes wildcard-led day fields from restricted fields.

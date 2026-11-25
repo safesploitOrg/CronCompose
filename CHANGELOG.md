@@ -1,6 +1,22 @@
 # 📝 Changelog
 
-## [0.1.0-alpha.2] — Unreleased
+## [0.1.0-alpha.4] — Unreleased
+
+- Resolve GNU `date` or Homebrew `gdate` automatically for shell integration tests on Linux/macOS, with an optional absolute `GNU_DATE` override.
+- Use the verified executable for both frozen and real-date integration cases; fail clearly if GNU Coreutils is unavailable.
+- Add resolver regression tests. Production web assets, generated cron conditions and CI enforcement are unchanged.
+
+---
+
+## [0.1.0-alpha.3] — Previous unpublished candidate
+
+- Keep all five cron fields visible during Extended Scheduling; calendar fields stay disabled and only the interactive weekday selector is hidden.
+- Group consecutive weekday names into ranges in both summaries and schedule explanations, without changing generated cron syntax.
+- Add unit coverage for every non-empty weekday combination and update browser regressions for the retained disabled field and stable geometry.
+
+---
+
+## [0.1.0-alpha.2] — Previous unpublished candidate
 
 - Right-aligned the weekday label, summary, seven-button selector and helper text beneath the Weekday field.
 - Placed the live schedule explanation alongside the selector when the editor has sufficient width; retained a stacked layout for narrow editors.

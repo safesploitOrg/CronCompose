@@ -7,8 +7,8 @@ CronCompose is a browser-only Linux cron schedule builder, validator and crontab
 ## Features
 
 - Five-field Cronie-style schedule editor, live explanation and field-specific validation.
-- Right-aligned, fixed-position interactive weekdays, regular presets and special strings. The live explanation sits alongside the selector on wide editors.
-- Optional Extended Scheduling: first, second, third, fourth or last weekday of a month and the last calendar day. Uses a weekly/daily trigger plus a GNU date/POSIX shell condition.
+- Right-aligned, fixed-position interactive weekdays, regular presets and special strings. Consecutive selected days are summarised as ranges (e.g. Mon–Wed, Fri). The live explanation sits alongside the selector on wide editors.
+- Optional Extended Scheduling: first, second, third, fourth or last weekday of a month and the last calendar day. Uses a weekly/daily trigger plus a GNU date/POSIX shell condition. All five fields remain visible; calendar fields are locked and only the clickable weekday selector is hidden.
 - User/system crontab formatting, output redirection and simple/detailed comments.
 - Local theme, density and expanded-section preferences; no command or username persistence.
 
@@ -16,7 +16,7 @@ CronCompose is a browser-only Linux cron schedule builder, validator and crontab
 
 ## Local development
 
-Requires Node.js 22+, Python 3 for the local HTTP server, and GNU/Linux with GNU Coreutils for shell integration tests. On macOS run the shell tests in a GNU/Linux VM/container. There are no npm dependencies.
+Requires Node.js 22+, Python 3 for the local HTTP server, and GNU Coreutils `date` for shell integration tests. On macOS install GNU Coreutils with `brew install coreutils` (`gdate --version` to verify). Linux normally provides GNU `date` already. There are no npm dependencies. The test harness detects `date` or `gdate` on PATH, or accepts an explicit absolute `GNU_DATE` override. Missing or invalid GNU date fails the tests; it does not skip them. Generated extended schedules still target GNU/Linux.
 
 ```bash
 npm ci --ignore-scripts --no-audit --no-fund

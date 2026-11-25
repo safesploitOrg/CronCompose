@@ -6,13 +6,14 @@ import {join} from 'node:path';
 import {spawnSync} from 'node:child_process';
 import {buildExtendedCommand,COMMON_EXTENDED,OCCURRENCES,extendedTrigger} from '../../public/assets/js/extended.js';
 import {parseCron} from '../../public/assets/js/cron.js';
-const gnu=spawnSync('date',['--version'],{encoding:'utf8'});
-assert.equal(gnu.status,0,'GNU date is required for integration tests');
-assert.match(gnu.stdout,/GNU coreutils/);
+import {findGnuDate} from '../helpers/gnu-date.js';
+const gnuDate=findGnuDate();
+console.log(`Extended integration tests: ${gnuDate}`);
 const dir=mkdtempSync(join(tmpdir(),'croncompose-test-'));
 const shim=join(dir,'date');
-// Only the current date is frozen; all look-ahead arithmetic uses real GNU date.
-writeFileSync(shim,`#!/bin/sh\nif [ "$1" = '+%F' ]; then\n  [ "\${TEST_DATE_FAIL:-0}" != 1 ] || exit 19\n  printf '%s\\n' "$TEST_DATE"\nelse\n  exec /usr/bin/date "$@"\nfi\n`);
+// Only the current date is frozen in fixture mode; all look-ahead arithmetic
+// and the live snapshot use the same verified GNU date executable.
+writeFileSync(shim,`#!/bin/sh\nif [ "$TEST_USE_REAL_DATE" != 1 ] && [ "$1" = '+%F' ]; then\n  [ "\${TEST_DATE_FAIL:-0}" != 1 ] || exit 19\n  printf '%s\\n' "$TEST_DATE"\nelse\n  exec "$TEST_GNU_DATE" "$@"\nfi\n`);
 chmodSync(shim,0o700);
 process.on('exit',()=>rmSync(dir,{recursive:true,force:true}));
 function run(command,date,{fail=false,real=false}={}){
@@ -20,7 +21,7 @@ function run(command,date,{fail=false,real=false}={}){
   // All percent signs in the generated guard are escaped; user percent signs are rejected.
   assert.doesNotMatch(command,/(?<!\\)%/);
   const shell=command.replace(/\\%/g,'%');
-  return spawnSync('/bin/sh',['-c',shell],{encoding:'utf8',timeout:5000,env:{...process.env,PATH:real?'/usr/bin:/bin':`${dir}:/usr/bin:/bin`,TZ:'UTC0',TEST_DATE:date,TEST_DATE_FAIL:fail?'1':'0'}});
+  return spawnSync('/bin/sh',['-c',shell],{encoding:'utf8',timeout:5000,env:{...process.env,PATH:`${dir}:/usr/bin:/bin`,TZ:'UTC0',TEST_GNU_DATE:gnuDate,TEST_USE_REAL_DATE:real?'1':'0',TEST_DATE:date,TEST_DATE_FAIL:fail?'1':'0'}});
 }
 const months=[[2023,1],[2024,1],[2024,2],[2025,2],[2026,3],[2026,4],[2026,11],[2026,12]];
 function monthDates(year,month){const count=new Date(Date.UTC(year,month,0)).getUTCDate();return Array.from({length:count},(_,i)=>new Date(Date.UTC(year,month-1,i+1)));}
